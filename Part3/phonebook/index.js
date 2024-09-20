@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = morgan();
+const cors = require("cors");
 
 let persons = [
   {
@@ -26,6 +27,8 @@ let persons = [
 ];
 //morgan*****
 app.use(morgan("tiny"));
+//cors
+app.use(cors());
 // Date function to return formatted date
 const getFormattedDate = () => {
   const now = new Date();
