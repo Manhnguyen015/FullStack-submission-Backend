@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const morgan = morgan();
+const morgan = require("morgan");
 const cors = require("cors");
 
 let persons = [
