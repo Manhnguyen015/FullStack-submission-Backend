@@ -25,10 +25,14 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+app.use(express.json());
 //morgan*****
 app.use(morgan("tiny"));
 //cors
 app.use(cors());
+//static
+app.use(express.static("dist"));
+
 // Date function to return formatted date
 const getFormattedDate = () => {
   const now = new Date();
@@ -48,7 +52,7 @@ const getFormattedDate = () => {
 
 const generateId = () => {
   const maxID =
-    notes.length > 0 ? Math.max(...notes.map((p) => Number(p.id))) : 0;
+    persons.length > 0 ? Math.max(...persons.map((p) => Number(p.id))) : 0;
   return String(maxID + 1);
 };
 
@@ -89,7 +93,7 @@ app.get("/api/persons/:id", (req, res) => {
 
 app.delete("/api/persons/:id", (req, res) => {
   const id = req.params.id;
-  person = persons.filter((person) => person.id !== id);
+  persons = persons.filter((person) => person.id !== id);
 
   res.status(204).end();
 });
