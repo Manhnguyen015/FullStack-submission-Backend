@@ -1,30 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const Person = require("./models/node");
 
-let persons = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
 app.use(express.json());
 //morgan*****
 app.use(morgan("tiny"));
@@ -50,66 +31,71 @@ const getFormattedDate = () => {
   return now.toLocaleString("en-US", options);
 };
 
-const generateId = () => {
-  const maxID =
-    persons.length > 0 ? Math.max(...persons.map((p) => Number(p.id))) : 0;
-  return String(maxID + 1);
-};
-
+//GET method
 app.get("/api/persons", (req, res) => {
-  res.json(persons);
+  Person.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
-
+//POST method
 app.post("/api/persons", (req, res) => {
   const body = req.body;
 
   if (!body.name || !body.number) {
     return res.status(400).json({ error: "missing name or number" });
   }
-  if (persons.find((person) => person.name === body.name)) {
-    return res.status(400).json({ error: "name already exits in phoneBook" });
-  }
-  const person = {
-    id: generateId(),
-    number: body.number,
+  // if (persons.find((person) => person.name === body.name)) {
+  //   return res.status(400).json({ error: "name already exits in phoneBook" });
+  // }
+  const person = new Person({
     name: body.name,
-  };
+    number: body.number,
+  });
 
-  persons = persons.concat(person);
-
-  res.json(person);
+  person.save().then((savedPerson) => {
+    res.json(savedPerson);
+  });
 });
-
+//GET
 app.get("/api/persons/:id", (req, res) => {
-  const id = req.params.id;
-  const person = persons.find((person) => person.id === id);
-
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+  Person.findById(req.params.id)
+    .then((person) => {
+      if (person) {
+        res.json(person);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => {
+      res.status(500).send({ error: "malformed id" });
+    });
 });
 
+//DELETE method
 app.delete("/api/persons/:id", (req, res) => {
-  const id = req.params.id;
-  persons = persons.filter((person) => person.id !== id);
-
-  res.status(204).end();
+  Person.findByIdAndRemove(req.params.id)
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch((error) => {
+      res.status(500).send({ error: "malformed id" });
+    });
 });
 
+//GET
 app.get("/api/info", (req, res) => {
-  const personCount = persons.length;
-  const currentDate = getFormattedDate();
+  Person.countDocuments({}).then((personCount) => {
+    const currentDate = getFormattedDate();
 
-  res.send(`
-    <p>Phone book has info for ${personCount} people.</p>
-    <br/>
-    <p>${currentDate}</p>
-  `);
+    res.send(`
+        <p>Phone book has info for ${personCount} people.</p>
+        <br/>
+        <p>${currentDate}</p>
+      `);
+  });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
