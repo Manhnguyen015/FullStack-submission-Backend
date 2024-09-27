@@ -1,9 +1,10 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const Blog = require("./models/node");
-const config = require("./utils/config"); //
-const logger = require("./utils/logger");
+require("dotenv").config();
+// const Blog = require("../models/node");
+// const config = require("./utils/config"); //
+// const logger = require("./utils/logger");
 const blogsRouter = require("./controller/blogs");
 const mongoose = require("mongoose");
 const middleware = require("./utils/middleware");
