@@ -6,9 +6,10 @@ require("dotenv").config();
 // const config = require("./utils/config"); //
 // const logger = require("./utils/logger");
 const blogsRouter = require("./controller/blogs");
+const userRouter = require("./controller/users");
 const mongoose = require("mongoose");
 const middleware = require("./utils/middleware");
-
+const loginRouter = require("./controller/login");
 mongoose.set("strictQuery", false);
 
 const url = process.env.MONGODB_URI;
@@ -32,7 +33,9 @@ app.use(express.static("dist"));
 app.use(express.json());
 app.use(middleware.requestLogger);
 
-app.use("/", blogsRouter);
+app.use("/blogs", blogsRouter);
+app.use("/users", userRouter);
+app.use("/api/login", loginRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandle);
